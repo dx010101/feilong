@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  data_clean:
+    image: ubuntu:2204py310v2
+    container_name: data_clean
+    cap_add:
+      - SYS_PTRACE
+    network_mode: "host"
+    privileged: true
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - /data/common:/common
+      - /home/ubuntu/public:/public
+      # 挂载宿主机的时区文件
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    working_dir: /public/paul/scripts
+    command: ["python3", "auto_clean.py"]
+    restart: "no"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  py_norm:
+    image: ubuntu:2204py310v2
+    container_name: py_norm
+    cap_add:
+      - SYS_PTRACE
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - /data/common:/common
+      - /home/ubuntu/public:/public
+      # 挂载宿主机的时区文件
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    working_dir: /public/paul/feature_norm/servers
+    command: ["python3", "server_period.py"]
+    restart: "no"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  cpp_trader:
+    image: ubuntu:2204py310v2
+    container_name: cpp_trader
+    cap_add:
+      - SYS_PTRACE
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - /data/common:/common
+      - /home/ubuntu/public:/public
+      # 挂载宿主机的时区文件
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    working_dir: /public/paul/st_utx_1/compiled
+    command: ["./utx_test_trade"]
+    restart: "no"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
